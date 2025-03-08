@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicker O'yini</title>
+    <style>
+        /* Orqa fonni qora qilish */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #000; /* Qora rang */
+            color: #fff; /* Matnni oq rangga o'zgartirish */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            color: #FFD700; /* Sariq rang */
+        }
+        p {
+            font-size: 24px;
+            color: #fff;
+        }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        /* Katta sariq tanga tugmasi */
+        #click-button {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #FFD700; /* Sariq rang */
+            color: #000;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.5); /* Sariq rangdagi soya */
+            border: 4px solid #FFA500; /* Sariq rang chegarasi */
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        #click-button:active {
+            transform: scale(0.95); /* Bosilganda kichraytirish */
+            box-shadow: 0 2px 4px rgba(255, 215, 0, 0.5); /* Bosilganda soya kichrayadi */
+        }
+        /* Tugmalarni gorizontal joylashtirish */
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap; /* Telefonlar uchun moslashtirish */
+        }
+        .buttons-container button {
+            background-color: #4CAF50; /* Yashil rang */
+            color: white;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px; /* Telefonlar uchun moslashtirish */
+        }
+        .buttons-container button:hover {
+            background-color: #45a049; /* Yashil rangni to'qroq qilish */
+        }
+        /* Telefonlar uchun moslashtirish */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+            }
+            p {
+                font-size: 18px;
+            }
+            #click-button {
+                width: 120px;
+                height: 120px;
+                font-size: 20px;
+            }
+            .buttons-container button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Clicker O'yini</h1>
+    <p>Bosildi: <span id="counter">0</span> marta</p>
+    <p>Reyting: <span id="high-score">0</span></p>
+    <p>Qolgan vaqt: <span id="timer">30</span> soniya</p>
+    <button id="click-button">Bos!</button>
+    <div class="buttons-container">
+        <button id="start-button">O'yinni boshlash</button>
+        <button id="invite-button">Do'stlarni taklif qilish</button>
+        <button id="rating-button">Reyting</button>
+    </div>
+
+    <script>
+        // O'zgaruvchilar
+        let counter = 0;
+        let highScore = 0;
+        let timeLeft = 30;
+        let isGameActive = false;
+        let timerInterval;
+        let playerName = "";
+
+        // Elementlar
+        const counterElement = document.getElementById("counter");
+        const highScoreElement = document.getElementById("high-score");
+        const timerElement = document.getElementById("timer");
+        const clickButton = document.getElementById("click-button");
+        const startButton = document.getElementById("start-button");
+        const inviteButton = document.getElementById("invite-button");
+        const ratingButton = document.getElementById("rating-button");
+
+        // O'yinni boshlash
+        startButton.addEventListener("click", () => {
+            playerName = prompt("Ismingizni kiriting:"); // Ism so'raladi
+            if (playerName) {
+                counter = 0;
+                timeLeft = 30;
+                isGameActive = true;
+                clickButton.disabled = false;
+                startButton.disabled = true;
+                inviteButton.disabled = true;
+                counterElement.textContent = counter;
+                timerElement.textContent = timeLeft;
+
+                // Vaqtni hisoblash
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    timerElement.textContent = timeLeft;
+
+                    // Vaqt tugaganda
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        isGameActive = false;
+                        clickButton.disabled = true;
+                        startButton.disabled = false;
+                        inviteButton.disabled = false;
+                        saveScore(playerName, counter); // Natijani saqlash
+                        alert(`O'yin tugadi! Sizning natijangiz: ${counter} ball`);
+                    }
+                }, 1000);
+            } else {
+                alert("Iltimos, ismingizni kiriting!");
+            }
+        });
+
+        // Tugma bosilganda
+        clickButton.addEventListener("click", () => {
+            if (isGameActive) {
+                counter++;
+                counterElement.textContent = counter;
+
+                // Bonus tekshirish (har 10 ta bosish uchun)
+                if (counter % 10 === 0) {
+                    counter += 5; // 5 ball bonus
+                }
+
+                // Reytingni yangilash
+                if (counter > highScore) {
+                    highScore = counter;
+                    highScoreElement.textContent = highScore;
+                }
+            }
+        });
+
+        // Do'stlarni taklif qilish
+        inviteButton.addEventListener("click", () => {
+            alert("O'yinni do'stlaringiz bilan ulashing: https://example.com/clicker-game");
+        });
+
+        // Reyting sahifasiga o'tish
+        ratingButton.addEventListener("click", () => {
+            window.location.href = "rating.html";
+        });
+
+        // Natijani saqlash
+        function saveScore(name, score) {
+            fetch("/api/save-score", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name, score }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Natija saqlandi:", data);
+            })
+            .catch(error => {
+                console.error("Xatolik:", error);
+            });
+        }
+    </script>
+</body>
+</html>
