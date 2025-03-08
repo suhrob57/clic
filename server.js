@@ -14,11 +14,13 @@ app.use(express.static("public")); // Static fayllar uchun
 // Reyting ma'lumotlari
 const scoresFilePath = path.join(__dirname, "scores.json");
 
+// Fayl mavjudligini tekshirish
+if (!fs.existsSync(scoresFilePath)) {
+    fs.writeFileSync(scoresFilePath, JSON.stringify([])); // Fayl yaratish
+}
+
 // Reyting ma'lumotlarini o'qish
 function readScores() {
-    if (!fs.existsSync(scoresFilePath)) {
-        fs.writeFileSync(scoresFilePath, JSON.stringify([]));
-    }
     return JSON.parse(fs.readFileSync(scoresFilePath));
 }
 
