@@ -10,8 +10,8 @@
             text-align: center;
             margin: 0;
             padding: 0;
-            background-color: #000; /* Qora rang */
-            color: #fff; /* Matnni oq rangga o'zgartirish */
+            background-color: #000;
+            color: #fff;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -20,7 +20,7 @@
             padding: 20px;
         }
         h1 {
-            color: #FFD700; /* Sariq rang */
+            color: #FFD700;
         }
         table {
             width: 100%;
@@ -33,17 +33,16 @@
             border: 1px solid #fff;
         }
         th {
-            background-color: #4CAF50; /* Yashil rang */
+            background-color: #4CAF50;
         }
         a {
-            color: #FFD700; /* Sariq rang */
+            color: #FFD700;
             text-decoration: none;
             margin-top: 20px;
         }
         a:hover {
             text-decoration: underline;
         }
-        /* Telefonlar uchun moslashtirish */
         @media (max-width: 600px) {
             h1 {
                 font-size: 24px;
@@ -68,23 +67,27 @@
             <!-- Reyting ma'lumotlari shu yerga yuklanadi -->
         </tbody>
     </table>
-    <a href="index.html">Orqaga qaytish</a>
+    <a href="/">Orqaga qaytish</a>
 
     <script>
         // Reyting ma'lumotlarini yuklash
-        const scores = JSON.parse(localStorage.getItem("scores")) || [];
-        const ratingTable = document.getElementById("rating-table").getElementsByTagName("tbody")[0];
-
-        // Eng yaxshi 30 natijani ko'rsatish
-        scores.slice(0, 30).forEach((player, index) => {
-            const row = ratingTable.insertRow();
-            const cell1 = row.insertCell(0);
-            const cell2 = row.insertCell(1);
-            const cell3 = row.insertCell(2);
-            cell1.textContent = index + 1;
-            cell2.textContent = player.name;
-            cell3.textContent = player.score;
-        });
+        fetch("/api/get-scores")
+            .then(response => response.json())
+            .then(scores => {
+                const ratingTable = document.getElementById("rating-table").getElementsByTagName("tbody")[0];
+                scores.slice(0, 30).forEach((player, index) => {
+                    const row = ratingTable.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+                    cell1.textContent = index + 1;
+                    cell2.textContent = player.name;
+                    cell3.textContent = player.score;
+                });
+            })
+            .catch(error => {
+                console.error("Reyting ma'lumotlarini olishda xatolik:", error);
+            });
     </script>
 </body>
 </html>
