@@ -5,9 +5,10 @@ let game = {
     perClick: 1,
     clickCost: 10,
     energyCost: 50,
-    playerName: "Player" + Math.floor(Math.random() * 1000) // Tasodifiy ism
+    playerName: "Player" + Math.floor(Math.random() * 1000) // Har bir foydalanuvchi uchun tasodifiy ism
 };
 
+// `leaderboard` ni `localStorage` dan olish yoki bo‘sh massiv bilan boshlash
 let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
 
 function updateStats() {
@@ -42,7 +43,7 @@ function tapCoin() {
         updateStats();
         document.getElementById("coin").style.transform = "scale(0.9)";
         setTimeout(() => document.getElementById("coin").style.transform = "scale(1)", 100);
-        updateLeaderboard();
+        updateLeaderboard(); // Har bosishda reyting yangilanadi
     } else {
         showMessage("Energiya tugadi! Kutib turing...");
     }
@@ -55,6 +56,7 @@ function upgradeClick() {
         game.clickCost = Math.floor(game.clickCost * 1.5);
         showMessage(`Daromad oshirildi! +${game.perClick} TapCoin`);
         updateStats();
+        updateLeaderboard();
     } else {
         showMessage("Yetarli TapCoin yo‘q!");
     }
@@ -68,6 +70,7 @@ function upgradeEnergy() {
         game.energyCost = Math.floor(game.energyCost * 2);
         showMessage(`Energiya chegarasi oshirildi! ${game.maxEnergy}`);
         updateStats();
+        updateLeaderboard();
     } else {
         showMessage("Yetarli TapCoin yo‘q!");
     }
@@ -81,24 +84,40 @@ function inviteFriend() {
 }
 
 function updateLeaderboard() {
+    // O‘yinchi ma’lumotlarini yangilash
     const playerScore = { name: game.playerName, score: Math.floor(game.coins) };
-    const existing = leaderboard.findIndex(p => p.name === game.playerName);
-    if (existing !== -1) leaderboard[existing] = playerScore;
-    else leaderboard.push(playerScore);
+    const existingIndex = leaderboard.findIndex(p => p.name === game.playerName);
+    if (existingIndex !== -1) {
+        leaderboard[existingIndex] = playerScore; // Agar o‘yinchi allaqachon mavjud bo‘lsa, yangilash
+    } else {
+        leaderboard.push(playerScore); // Yangi o‘yinchi qo‘shish
+    }
+
+    // Reytingni saralash va top 5 ni olish
     leaderboard.sort((a, b) => b.score - a.score);
-    leaderboard = leaderboard.slice(0, 5); // Faqat top 5
+    leaderboard = leaderboard.slice(0, 5);
+
+    // `localStorage` ga saqlash
     localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+
+    // Ekranga chiqarish
     renderLeaderboard();
 }
 
 function renderLeaderboard() {
     const list = document.getElementById("leaderboard-list");
-    list.innerHTML = "";
-    leaderboard.forEach(player => {
+    list.innerHTML = ""; // Avvalgi ro‘yxatni tozalash
+    if (leaderboard.length === 0) {
         const li = document.createElement("li");
-        li.textContent = `${player.name}: ${player.score} TapCoin`;
+        li.textContent = "Hozircha reyting bo‘sh";
         list.appendChild(li);
-    });
+    } else {
+        leaderboard.forEach(player => {
+            const li = document.createElement("li");
+            li.textContent = `${player.name}: ${player.score} TapCoin`;
+            list.appendChild(li);
+        });
+    }
 }
 
 // Energiyani har 2 soniyada tiklash
