@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+    <div>
+  <p id="referral-link">Generating referral link...</p>
+  <button onclick="navigator.clipboard.writeText(document.getElementById('referral-link').innerText.split(': ')[1])">Copy Referral Link</button>
+</div>
     <div class="container">
         <h1>TapCoin</h1>
         <div id="stats">
