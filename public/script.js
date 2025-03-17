@@ -143,4 +143,60 @@ async function init() {
     updateLeaderboard();
 }
 
+// script.js (oxiriga qo‘shing)
+
+// Referral linkni olish
+async function getReferralLink() {
+  const playerId = localStorage.getItem('playerId');
+  if (!playerId) return;
+
+  try {
+    const response = await fetch('/api/referral', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, action: 'generate' }),
+    });
+    const data = await response.json();
+    if (data.referralCode) {
+      const referralLink = `${window.location.origin}?ref=${data.referralCode}`;
+      document.getElementById('referral-link').innerText = `Your referral link: ${referralLink}`;
+    }
+  } catch (error) {
+    console.error('Error generating referral link:', error);
+  }
+}
+
+// Referral kodni ishlatish
+async function redeemReferralCode() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const referralCode = urlParams.get('ref');
+  const playerId = localStorage.getItem('playerId');
+
+  if (referralCode && playerId) {
+    try {
+      const response = await fetch('/api/referral', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId, action: 'redeem', referralCode }),
+      });
+      const data = await response.json();
+      if (data.message) {
+        alert(data.message);
+        updateUI(); // UI’ni yangilash uchun
+      } else {
+        alert(data.error || 'Error redeeming referral code');
+      }
+    } catch (error) {
+      console.error('Error redeeming referral code:', error);
+    }
+  }
+}
+
+// Sahifa yuklanganda referral linkni olish va kodni ishlatish
+document.addEventListener('DOMContentLoaded', () => {
+  getReferralLink();
+  redeemReferralCode();
+});
+
 init();
+
